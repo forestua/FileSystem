@@ -1,5 +1,4 @@
 #include "file.h"
-#include <sstream>
 
 File::File(QString name, QString ext, unsigned int indexCluster)
 {
@@ -8,7 +7,7 @@ File::File(QString name, QString ext, unsigned int indexCluster)
     this->lastAccessDate = QDate::currentDate();
     this->lastAccessTime = QTime::currentTime();
     this->indexCluster = indexCluster;
-    this->size = 10*1024;
+    this->size = 0;
 }
 
 File::File(char* byteArray)
@@ -16,31 +15,28 @@ File::File(char* byteArray)
     //this->name = new QString();
 }
 
-char* File::GetFormattedBytes(QString val, const unsigned int size)
+const char* File::GetFormattedBytes(QString val, const unsigned int size)
 {
-    char out[4] = {0};
     if (val.length() > size){
-        val.toStdString().copy(out, size, 0);
+        return val.toStdString().substr(0, size).c_str();
     }
     else{
-        val.toStdString().copy(out, val.length());
+        return val.toStdString().substr(0, val.length()).c_str();
     }
-    return out;
 }
 
-char* File::GetByteArray()
+std::string File::GetByteArray()
 {
-    std::stringstream ss;
-    //ss << name.toStdString().c_str();
-    ss << GetFormattedBytes(name, 4);
+    ss << name.toStdString().c_str();
+    //ss << GetFormattedBytes(name, 4);
     ss << extension.toStdString().c_str();
     ss << indexCluster;
     ss << size;
 
-    return (char*)ss.str().c_str();
+    return ss.str();
 }
 
-std::ifstream& File::operator >>(std::ifstream& is)
+/*std::ifstream& File::operator >>(std::ifstream& is)
 {
     is >> name;
     is >> extension;
@@ -49,5 +45,4 @@ std::ifstream& File::operator >>(std::ifstream& is)
     is >> attr;
     is >> indexCluster;
     is >> size;
-}
-
+}*/

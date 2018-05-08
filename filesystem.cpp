@@ -12,44 +12,52 @@ FileSystem::FileSystem()
 
     Format();
     InitFs();
+    NewFile("/", "");
     NewFile("111", "txt");
     NewFile("222", "fff");
     NewFile("3333", "data");
 
     SaveFs();
 
-//    LoadFs();
+    //LoadFs();
 }
 
 void FileSystem::Format()
 {
-    for (int i = 0; i < VOLUME_SIZE_IN_CLUSTERS; i++)
+    for (unsigned int i = 0; i < VOLUME_SIZE_IN_CLUSTERS; i++)
     {
         fileTable[i] = 0;
     }
     fileArray.clear();
     index = 0;
 
-    for (int i = 0; i < 1024; i++)
+    for (int i = 0; i < VOLUME_SIZE_IN_CLUSTERS; i++)
     {
         dataTable[i] = new Cluster();
     }
 
-//    InitFs();
+    InitFs();
 }
 
 void FileSystem::NewFile(QString name, QString ext)
 {
-    File* newFile = new File(name, ext, index);
+    File* newFile = new File(name, ext, GetNextFreeIndex());
     fileArray.push_back(newFile);
-    int cluster_count = (int) ceil(newFile->GetSize() / CLUSTER_SIZE) + 1;
 
-    for (int i=0; i<cluster_count; i++)
+    //select by file size
+    //int cluster_count = (int) ceil(newFile->GetSize() / CLUSTER_SIZE) + 1;
+    /*for (int i=0; i<cluster_count; i++)
     {
         fileTable[index] = ++index;
-    }
-    fileTable[index] = 0xFFFF;
+    }*/
 
+    /*Cluster* cluster = getFreeCluster();
+    if(cluster)
+    {
+
+    }*/
+
+    //fileTable[index] = 0xFFFF;
 }
 
 void FileSystem::CopyFile(File* oldFile, QString newName, QString newExt)
@@ -60,7 +68,7 @@ void FileSystem::CopyFile(File* oldFile, QString newName, QString newExt)
     int cluster_count = (int) ceil(oldFile->GetSize() / CLUSTER_SIZE) + 1;
     for (int i=0; i<cluster_count; i++)
     {
-        int nextIndex = GetNextFreeIndex(index);
+        int nextIndex = GetNextFreeIndex();
         fileTable[index] = nextIndex;
         index = nextIndex;
     }
@@ -87,23 +95,31 @@ void FileSystem::MoveFile(QString newName)
     // TODO
 }
 
-std::vector<std::string> FileSystem::ShowFiles()
+std::vector<QString> FileSystem::GetFiles()
 {
-    std::vector<std::string> resVector;
+    std::vector<QString> resVector;
     std::vector<File*>::iterator it;
     for(it = fileArray.begin(); it != fileArray.end(); it++)
     {
-        resVector.push_back((*it)->name.toStdString());
+        resVector.push_back((*it)->name + "." + (*it)->extension);
     }
     return resVector;
 }
 
-int FileSystem::GetNextFreeIndex(int index)
+int FileSystem::GetNextFreeIndex()
 {
     // TODO - check size.
-    return index+1;
+    for (int i = 0; i < VOLUME_SIZE_IN_CLUSTERS; i++)
+    {
+        if (!fileTable[i])
+        {
+            //fileTable[index] = i;
+            fileTable[i] = 0xFFFF;
+            return i;
+        }
+    }
+    return NULL;
 }
-
 
 void FileSystem::LoadFs()
 {
@@ -112,20 +128,25 @@ void FileSystem::LoadFs()
     int countFiles;
     inFile >> countFiles;
 
-    //infile.seekg (0,infile.end);
-    //long size = infile.tellg();
-    //char* buffer = new char[size];
-    //inFile.seekg (0);
+//    infile.seekg (0,infile.end);
+//    long size = infile.tellg();
+//    char* buffer = new char[size];
+//    inFile.seekg (0);
+
+    for (int i = 0; i < VOLUME_SIZE_IN_CLUSTERS; i++)
+    {
+        inFile >> fileTable[i];
+    }
 
     File* f;
     char buffer[32];
-    for (int i = 0; i<countFiles; i++)
+    for (int i = 0; i < countFiles; i++)
     {
         //inFile >> f;
         //fileArray.push_back(f);
 
-        inFile.read(buffer, 32);
-        fileArray.push_back(new File(buffer));
+        //inFile.read(buffer, 32);
+        //fileArray.push_back(new File(buffer));
     }
 
     inFile.close();
@@ -153,17 +174,59 @@ void FileSystem::SaveFs()
     outFile << fileArray.size();
 
     // file table section
+    char* t_str = new char;
+    for(int i = 0; i < VOLUME_SIZE_IN_CLUSTERS; i++)
+    {
+        itoa(fileTable[i], t_str, 10);
+        outFile.write(t_str, sizeof(int));
+    }
+    // file array section
     std::vector<File*>::iterator it;
     for(it = fileArray.begin(); it != fileArray.end(); it++)
     {
-        outFile.write((*it)->GetByteArray(),32);
+        std::string data = (*it)->GetByteArray();
+        outFile.write(data.c_str(), 32);
     }
 
     // data storage section
-    //for(int i = 0;  i < VOLUME_SIZE_IN_CLUSTERS; i++)
-    for(int i = 0;  i < 1024; i++)
+    for(int i = 0;  i < VOLUME_SIZE_IN_CLUSTERS; i++)
+    //for(int i = 0;  i < 1024; i++)
     {
         outFile.write(dataTable[i]->data, CLUSTER_SIZE);
     }
     outFile.close();
+}
+
+void FileSystem::NewFolder(QString name)
+{
+    File* newFolder = new File(name, "", GetNextFreeIndex());
+    newFolder->attr = '1';
+    fileArray.push_back(newFolder);
+}
+
+/*void FileSystem::loadFolder(File *file)
+{
+
+}*/
+
+/*Cluster* FileSystem::getFreeCluster()
+{
+    for(int i = 0; i < VOLUME_SIZE_IN_CLUSTERS; i++)
+    {
+        if(!dataTable[i]->isBusy)
+        {
+            return dataTable[i];
+        }
+    }
+    return NULL;
+}*/
+
+void FileSystem::editFile(File *f)
+{
+
+}
+
+void FileSystem::editFolder(File *f)
+{
+
 }

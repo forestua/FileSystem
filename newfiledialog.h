@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QStringList>
+#include <QAbstractButton>
 
 namespace Ui {
 class NewFileDialog;
@@ -35,6 +36,8 @@ private slots:
     void on_buttonBox_accepted();
 
     void on_buttonBox_rejected();
+
+    void on_buttonBox_clicked(QAbstractButton *button);
 
 private:
     Ui::NewFileDialog *ui;

@@ -70,7 +70,7 @@ public:
         lineEdit = new QLineEdit(centralWidget);
         lineEdit->setObjectName(QStringLiteral("lineEdit"));
         lineEdit->setEnabled(true);
-        lineEdit->setGeometry(QRect(20, 330, 391, 25));
+        lineEdit->setGeometry(QRect(10, 330, 401, 25));
         label = new QLabel(centralWidget);
         label->setObjectName(QStringLiteral("label"));
         label->setGeometry(QRect(20, 310, 151, 17));

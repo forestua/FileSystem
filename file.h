@@ -4,6 +4,7 @@
 #include <QString>
 #include <QDate>
 #include <QTime>
+#include <sstream>
 
 class File
 {
@@ -12,10 +13,10 @@ public:
     //1 option
     File(char* byteArray);
     //2 option
-    //std::ifstream& operator >>(std::ifstream& is);
+    std::ifstream& operator >>(std::ifstream& is);
 
-    char* GetByteArray();
-    char* GetFormattedBytes(QString val, const unsigned int size);
+    std::string GetByteArray();
+    const char* GetFormattedBytes(QString val, const unsigned int size);
     unsigned int GetSize() { return size; }
 
 public:
@@ -26,6 +27,8 @@ public:
     char attr;
     unsigned int indexCluster;
     unsigned int size;
+private:
+    std::ostringstream ss;
 };
 
 #endif // FILE_H

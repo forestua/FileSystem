@@ -29,16 +29,14 @@ SOURCES += \
     filesystem.cpp \
     file.cpp \
     newfiledialog.cpp \
-    newdirectorydialog.cpp \
-    treewidget.cpp
+    newdirectorydialog.cpp
 
 HEADERS += \
         mainwindow.h \
     filesystem.h \
     file.h \
     newfiledialog.h \
-    newfolderdialog.h \
-    treewidget.h
+    newfolderdialog.h
 
 FORMS += \
         mainwindow.ui \

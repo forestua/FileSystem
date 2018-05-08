@@ -14,16 +14,21 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     fileSystem = new FileSystem();
-    treeWidget = new TreeWidget();
 
     newFileDlg = new NewFileDialog();
     newDirectoryDlg = new NewDirectoryDialog();
-    connect(ui->createFile, SIGNAL(triggered()), newFileDlg, SLOT(show()));
-    connect(newFileDlg, SIGNAL(sendData(struct FileData)), this, SLOT(recieveNewFileData(struct FileData)));
-    connect(ui->createFolder, SIGNAL(triggered()), newDirectoryDlg, SLOT(show()));
 
-    //tree
     ui->treeWidget->setColumnCount(4);
+    QStringList list;
+    list << "Name" << "Extension" << "Last access date" << "Size";
+    ui->treeWidget->setHeaderLabels(list);
+
+    connect(ui->createFile, SIGNAL(triggered()), newFileDlg, SLOT(show()));
+    connect(ui->createFolder, SIGNAL(triggered()), newDirectoryDlg, SLOT(show()));
+    connect(newFileDlg, SIGNAL(sendData(FileData)), this, SLOT(receiveFileData(FileData)));
+    connect(newDirectoryDlg, SIGNAL(sendData(FolderData)), this, SLOT(receiveFolderData(FolderData)));
+
+    ShowFiles();
 }
 
 MainWindow::~MainWindow()
@@ -31,27 +36,35 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::recieveNewFileData(FileData fileData)
+void MainWindow::ShowFiles()
 {
-    QMessageBox msgBox;
-        msgBox.setText(fileData.name);
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.exec();
-        msgBox.setText(fileData.ext);
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.exec();
-//        msgBox.setText(fileData.size);
-//        msgBox.setStandardButtons(QMessageBox::Ok);
- //       msgBox.exec();
+    ui->treeWidget->clear();
+
+    QList<QTreeWidgetItem *> items;
+    /*auto files = fileSystem->GetFiles();
+    for (int i = 0; i < files.size(); ++i)
+        items.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(files[i])));
+    ui->treeWidget->insertTopLevelItems(0, items);*/
+
+    //1) Show root folder
+    File* folder;
+    for (int i = 0; i < fileSystem->fileArray.size(); i++)
+    {
+        if (fileSystem->fileArray[i]->name == "/")
+        {
+            folder = fileSystem->fileArray[i];
+        }
+    }
+
+    expandTreeSelectedFolder(folder);
 }
 
-//Formatting file system
-/*void MainWindow::format()
+    //Formatting file system
+void MainWindow::format()
 {
     //QFile disk(DISK_NAME);
 
-}*/
+}
 
 void MainWindow::on_action_triggered()
 {
@@ -83,18 +96,43 @@ void MainWindow::on_createFile_triggered()
 //    }
 }
 
-
-
-void MainWindow::recieveNewDirectoryData(FolderData folderData)
+void MainWindow::receiveFileData(FileData fileData)
 {
-    QMessageBox msgBox;
-    msgBox.setText(folderData.name);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.exec();
+//    QMessageBox msgBox;
+//    msgBox.setText(fileData.name + "." + fileData.ext);
+//    msgBox.setStandardButtons(QMessageBox::Ok);
+//    msgBox.exec();
+
+    fileSystem->NewFile(fileData.name, fileData.ext);
+
+    ShowFiles();
+}
+
+void MainWindow::receiveFolderData(FolderData folderData)
+{
+//    QMessageBox msgBox;
+//    msgBox.setText(folderData.name);
+//    msgBox.setStandardButtons(QMessageBox::Ok);
+//    msgBox.exec();
+
+    fileSystem->NewFile(folderData.name, "");
+
+    ShowFiles();
 }
 
 void MainWindow::on_exit_triggered()
 {
     //TODO: close file
     this->close();
+}
+
+void MainWindow::on_format_triggered()
+{
+    fileSystem->Format();
+    ShowFiles();
+}
+
+int MainWindow::expandTreeSelectedFolder(File* f)
+{
+    return 0;
 }

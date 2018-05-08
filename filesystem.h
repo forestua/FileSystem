@@ -25,18 +25,26 @@ public:
     void CopyFile(File* oldFile, QString newName, QString newExt);
     void RemoveFile(File* file);
     void MoveFile(QString newName);
+    void NewFolder(QString name);
+    void loadFolder();
+    void editFile(File* f);
+    void editFolder(File* f);
+    //
+    //Cluster* getFreeCluster();
 
-    std::vector<std::string> ShowFiles();
+    std::vector<QString> GetFiles();
 
 private:
-    int GetNextFreeIndex(int index);
+    int GetNextFreeIndex();
     void InitFs();
     void LoadFs();
     void SaveFs();
 
-    char fileTable[VOLUME_SIZE_IN_CLUSTERS]; //1 byte each
+public:
+
+    int fileTable[VOLUME_SIZE_IN_CLUSTERS]; //2 bytes each
     // TODO - must be VOLUME_SIZE_IN_CLUSTERS!
-    std::array<Cluster*, 1024> dataTable; // 8*512 bytes each
+    std::array<Cluster*, VOLUME_SIZE_IN_CLUSTERS> dataTable; // 8*512 bytes each
 
     std::vector<File*> fileArray;
     int index;

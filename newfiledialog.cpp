@@ -8,7 +8,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //connect(this->on_buttonBox_accepted(), SIGNAL(clicked()), w, SLOT(onButtonSend()));
+    //connect(sendData, SIGNAL(QDialogButtonBox::accepted()), parent, SLOT(onButtonSend()));
 }
 
 NewFileDialog::~NewFileDialog()
@@ -43,4 +43,9 @@ QString NewFileDialog::GetExt()
 void NewFileDialog::GetValues(QString& name)
 {
     name = ui->editName->text();
+}
+
+void NewFileDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+
 }
